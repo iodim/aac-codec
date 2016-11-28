@@ -269,3 +269,4 @@ sympy-plots-for-*.tex/
 .DS_Store
 
 datasets/
+*.wav
