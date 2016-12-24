@@ -9,16 +9,14 @@ function SNR = demoAAC1(fNameIn, fNameOut)
     y = y(1:N, :);
     SNR(1) = snr(y(:, 1), x(:, 1) - y(:, 1));
     SNR(2) = snr(y(:, 2), x(:, 2) - y(:, 2));
-    e  = mean((x-y).^2)
-    
-    
-    figure
-    plot(x(:, 1))
-    
-    figure
-    plot(y(:, 1))
-    
-    figure
-    plot(x(:, 2) - y(:, 2));
+%    
+%     figure
+%     plot(x(:, 1))
+%     
+%     figure
+%     plot(y(:, 1))
+%     
+%     figure
+%     plot(x(:, 2) - y(:, 2));
 end
 

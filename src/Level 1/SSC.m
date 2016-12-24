@@ -3,10 +3,10 @@ function frameType = SSC(frameT, nextFrameT, prevFrameType)
 %   frameType = SSC(frameT, nextFrameT, prevFrameType)
 %   Returns the following values:
 %    - frameType: Can take one of the following values:
-%       - 'OLS' for ONLY_LONG_SEQUENCE (1)
-%       - 'LSS' for LONG_START_SEQUENCE (2)
-%       - 'ESH' for EIGHT_SHORT_SEQUENCE (3)
-%       - 'LPS' for LONG_STOP_SEQUENCE (4)
+%       - OLS for ONLY_LONG_SEQUENCE (1)
+%       - LSS for LONG_START_SEQUENCE (2)
+%       - ESH for EIGHT_SHORT_SEQUENCE (3)
+%       - LPS for LONG_STOP_SEQUENCE (4)
 %   Accepts the following arguments:
 %    - frameT: Frame i in the time domain. Contains 2 audio channels.
 %    Matrix of size 2048x2.
