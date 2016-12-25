@@ -13,7 +13,7 @@ function frameType = SSC(frameT, nextFrameT, prevFrameType)
 %    - nextFrameT: Next frame, with index i+1. Used for window selection.
 %    Matrix of size 2048x2.
 %    - prevFrameType: Type that was chosen for the previous frame, with
-%   index i-1. Can also take the value NUL (0).
+%    index i-1. Can also take the value NUL (0).
     NUL = 0;
     OLS = 1;
     LSS = 2;
@@ -24,7 +24,7 @@ function frameType = SSC(frameT, nextFrameT, prevFrameType)
         filtered = filter([0.7548, -0.7548], [1, -0.5095], nextFrameT(:, ch));
         s = sum(reshape(filtered(577:1600), [128, 8]).^2, 1)';
         ds = zeros(8, 1);
-        for l = 1:8
+        for l = 2:8
             ds(l) = l*s(l)/sum(s(1:l-1));
         end
         isNextFrameESH = any((s > 1e-3) & (ds > 10));
