@@ -25,7 +25,7 @@ function frameType = SSC(frameT, nextFrameT, prevFrameType)
         s = sum(reshape(filtered(577:1600), [128, 8]).^2, 1)';
         ds = zeros(8, 1);
         for l = 2:8
-            ds(l) = l*s(l)/sum(s(1:l-1));
+            ds(l) = l*s(l)/sum(s(1:(l-1)));
         end
         isNextFrameESH = any((s > 1e-3) & (ds > 10));
         switch prevFrameType

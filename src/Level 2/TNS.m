@@ -19,6 +19,7 @@ function [frameFout, TNScoeffs] = TNS(frameFin, frameType)
     ESH = 3;
     LPS = 4;
     
+    % Added another value in b-vectors, denoting the final index
     bjl = [0;2;4;6;8;10;12;14;16;18;20;22;24;26;28;30;32;34;36;38;41;44;47;
            50;53;56;59;62;66;70;74;78;82;87;92;97;103;109;116;123;131;139;
            148;158;168;179;191;204;218;233;249;266;284;304;325;348;372;398;
@@ -35,7 +36,7 @@ function [frameFout, TNScoeffs] = TNS(frameFin, frameType)
         Sw = zeros(1024, 1);
     end
     
-    Nb = size(b, 1) - 1;
+    Nb = size(b, 1) - 1; % Compensate for extra value
     frameFout = zeros(size(frameFin));
     TNScoeffs = zeros(4, size(frameFin, 2));
     
