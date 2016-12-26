@@ -1,7 +1,7 @@
 function [WL, WR] = kbdwin(N, alpha)
     tsum = 0;
     WL = zeros(N/2, 1);
-    w = kaiser(N/2+1, 2.8*pi*alpha);
+    w = kaiser(N/2 + 1, pi^2*alpha);
     for n = 1:(N/2)
         tsum = tsum + w(n);
         WL(n) = tsum;
