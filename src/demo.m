@@ -1,8 +1,9 @@
 clc; clear; close all;
 
-addpath('./Level 1/')
-addpath('./Level 2/')
-addpath('./Level 3/')
+addpath('./huffman/');
+addpath('./Level 1/');
+addpath('./Level 2/');
+addpath('./Level 3/');
 
 demoAAC1('LicorDeCalandraca.wav', 'LicorDeCalandraca_L1.wav')
 demoAAC2('LicorDeCalandraca.wav', 'LicorDeCalandraca_L2.wav')
