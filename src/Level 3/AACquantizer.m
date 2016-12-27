@@ -54,7 +54,7 @@ function [S, sfc, G] = AACquantizer(frameF, frameType, SMR)
         while 1
             a_hat = a_hat_next;
             S(:, i) = sign(X).*fix(abs(X).*2.^(-1/4 * a_hat).^(3/4) + 0.4054);
-            X_hat = sign(S).*abs(S).^(4/3).*2.^(1/4*a_hat);
+            X_hat = sign(S(:, i)).*abs(S(:, i)).^(4/3).*2.^(1/4*a_hat);
             for b = 1:Nb
                 Pe(b) = sum((X((wlow(b)+1):(whigh(b)+1)) - X_hat((wlow(b)+1):(whigh(b)+1))).^2);
             end
@@ -63,7 +63,8 @@ function [S, sfc, G] = AACquantizer(frameF, frameType, SMR)
             a_hat_next(Pe < T(:, i)) = a_hat_next(Pe < T(:, i)) + 1;
             if max(abs(a_hat_next - a_hat)) > 60, break; end
         end
-        S(:, i) = sign(X).*fix(abs(X).*2.^(-1/4 * a_hat).^(3/4) + 0.4054);
+        % Is this needed below? Last iteration will keep S intact.
+        % S(:, i) = sign(X).*fix(abs(X).*2.^(-1/4 * a_hat).^(3/4) + 0.4054);
         G(i) = max(a_hat);
         sfc(:, i) = G(i) - a_hat;
         sfc(2:end, i) = sfc(2:end, i) - sfc(1:end-1, i);
