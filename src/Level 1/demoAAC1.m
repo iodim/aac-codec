@@ -1,5 +1,5 @@
 function SNR = demoAAC1(fNameIn, fNameOut)
-%DEMOAAC1 Demoes Level 1 encoding/decoding
+%DEMOAAC1 Demonstrates Level 1 encoding/decoding
     [x, ~] = audioread(fNameIn);
     AACSeq1 = AACoder1(fNameIn);
     y = iAACoder1(AACSeq1, fNameOut);
