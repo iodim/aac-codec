@@ -79,12 +79,14 @@ function AACSeq3 = AACoder3(fNameIn, fnameAACoded)
        % Quantize and huffman encode left channel frame frequencies.
        [S, sfc, AACSeq3(k).chl.G] = AACquantizer(AACSeq2(k).chl.frameF(idx), frameType, SMR);
        [AACSeq3(k).chl.stream, AACSeq3(k).chl.codebook] = encodeHuff(S, huffLUT);
-       [AACSeq3(k).chl.sfc, scalefactorsCodebookNum] = encodeHuff(sfc, huffLUT, scalefactorsCodebookNum);
+       [AACSeq3(k).chl.sfc, scalefactorsCodebookNum] = encodeHuff(sfc(:), huffLUT, scalefactorsCodebookNum);
        
        % Quantize and huffman encode right channel frame frequencies.
        [S, sfc, AACSeq3(k).chr.G] = AACquantizer(AACSeq2(k).chr.frameF(idx), frameType, SMR);
        [AACSeq3(k).chr.stream, AACSeq3(k).chr.codebook] = encodeHuff(S, huffLUT);
-       [AACSeq3(k).chr.sfc, scalefactorsCodebookNum] = encodeHuff(sfc, huffLUT, scalefactorsCodebookNum);
+       [AACSeq3(k).chr.sfc, scalefactorsCodebookNum] = encodeHuff(sfc(:), huffLUT, scalefactorsCodebookNum);
     end
+    
+    save(fnameAACoded, AACSeq3);
 end
 

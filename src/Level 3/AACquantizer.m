@@ -8,7 +8,7 @@ function [S, sfc, G] = AACquantizer(frameF, frameType, SMR)
 %    scalefactor gains for each band.
 %    - G: Current frame's global gain (1x8 for ESH, else scalar).
 %   Accepts the following arguments:
-%    - frameF: Current frame's frequency domain represantation. 128x8 
+%    - frameF: Current frame's frequency domain representation. 128x8 
 %   matrix if frame is ESH, else 1024x1 vector.
 %    - frameType: see SSC.m
 %    - SMR: see psycho.m

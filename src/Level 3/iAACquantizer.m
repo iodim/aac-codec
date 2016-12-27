@@ -11,6 +11,7 @@ function frameF = iAACquantizer(S, sfc, G, frameType)
         subframes = 8;
         freqs = 128;
         S = reshape(S, [freqs, subframes]);
+        sfc = reshape(sfc, [freqs, subframes]);
     else
         subframes = 1;
         freqs = 1024;
