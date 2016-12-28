@@ -24,21 +24,24 @@ function x = iAACoder3(AACSeq3, fNameOut)
         AACSeq2(k).chl.TNScoeffs = AACSeq3(k).chl.TNScoeffs;
         AACSeq2(k).chr.TNScoeffs = AACSeq3(k).chr.TNScoeffs;
         
+        if frameType == ESH, sfclen = 42*8;
+        else sfclen = 69; end
+        
         % Huffman-decode and inverse quantization in left channel
         sfc = decodeHuff(AACSeq3(k).chl.sfc, scalefactorsCodebookNum, huffLUT);
-        sfc = sfc(1:1024);  % See CAUTION at 'decodeHuff.m', dims of sfc??
+        sfc = sfc(1:sfclen);  % See CAUTION at 'decodeHuff.m', dims of sfc??
         S = decodeHuff(AACSeq3(k).chl.stream, AACSeq3(k).chl.codebook, huffLUT);
         S = S(1:1024);  % See CAUTION at 'decodeHuff.m'
         AACSeq2(k).chl.frameF = iAACquantizer(S, sfc, AACSeq3(k).chl.G, frameType);
-        AACSeq2(k).chl.frameF = AACSeq2(k).chl.frameF(:);
+%         AACSeq2(k).chl.frameF = AACSeq2(k).chl.frameF(:);
         
         % Huffman-decode and inverse quantization in right channel
         sfc = decodeHuff(AACSeq3(k).chr.sfc, scalefactorsCodebookNum, huffLUT);
-        sfc = sfc(1:1024);  % See CAUTION at 'decodeHuff.m', dims of sfc??
+        sfc = sfc(1:sfclen);  % See CAUTION at 'decodeHuff.m', dims of sfc??
         S = decodeHuff(AACSeq3(k).chr.stream, AACSeq3(k).chr.codebook, huffLUT);
         S = S(1:1024);  % See CAUTION at 'decodeHuff.m'
         AACSeq2(k).chr.frameF = iAACquantizer(S, sfc, AACSeq3(k).chr.G, frameType);
-        AACSeq2(k).chr.frameF = AACSeq2(k).chr.frameF(:);
+%         AACSeq2(k).chr.frameF = AACSeq2(k).chr.frameF;
     end
     
     x = iAACoder2(AACSeq2, fNameOut);

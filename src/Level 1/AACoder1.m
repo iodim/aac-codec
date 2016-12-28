@@ -25,11 +25,15 @@ function AACSeq1 = AACoder1(fNameIn)
 %     y = [zeros(1024, 2); y; zeros(1024, 2)];
 %     N = size(y, 1);
     [y, ~] = audioread(fNameIn);
-    N = size(y, 1);
-    N = N - mod(N, 2048);
-    y = [zeros(1024, 2); y(1:N, :); zeros(1024, 2)];
+%     N = size(y, 1);
+%     N = N - mod(N, 2048);
+%     y = [zeros(1024, 2); y(1:N, :); zeros(1024, 2)];
+    trueN = size(y, 1);
+    rightpad = 1024 - mod(trueN, 1024);
+    N = trueN + rightpad;
+    y = [zeros(2048, 2); y; zeros(rightpad + 2048, 2)];
 
-    K = N/1024 - 1;
+    K = size(y, 1)/1024 - 1;
     prevFrameType = NUL;
     
     AACSeq1 = struct('frameType', num2cell(zeros(K-1,1)), ...

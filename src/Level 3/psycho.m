@@ -51,7 +51,7 @@ function SMR = psycho(frameT, frameType, frameTprev1, frameTprev2)
 
     % n - 0.5 instead of n + 0.5 because arrays start from 1
     hannwin = 0.5 - 0.5*cos(pi/N*(n-0.5));
-    frameMF = fft(bsxfun(@times, frameM, hannwin));
+    frameMF = fft(bsxfun(@times, frameM, hannwin'));
     r = abs(frameMF(idxMF, :));
     f = angle(frameMF(idxMF, :));
     r_pred = zeros(size(r, 1), size(r, 2) - 2);

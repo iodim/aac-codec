@@ -44,6 +44,8 @@ function [S, sfc, G] = AACquantizer(frameF, frameType, SMR)
     G = zeros(1, size(frameF, 2));
     sfc = zeros(Nb, size(frameF, 2));
     
+    X_hat = zeros(size(frameF, 1), 1);
+    
     % Quantizization
     MQ = 8191;
     for i = 1:size(frameF, 2)
@@ -53,10 +55,12 @@ function [S, sfc, G] = AACquantizer(frameF, frameType, SMR)
         Pe = zeros(Nb, 1);
         while 1
             a_hat = a_hat_next;
-            S(:, i) = sign(X).*fix(abs(X).*2.^(-1/4 * a_hat).^(3/4) + 0.4054);
-            X_hat = sign(S(:, i)).*abs(S(:, i)).^(4/3).*2.^(1/4*a_hat);
+%             S(:, i) = sign(X).*fix(abs(X).*2.^(-1/4 * a_hat).^(3/4) + 0.4054);
+%             X_hat = sign(S(:, i)).*abs(S(:, i)).^(4/3).*2.^(1/4*a_hat);
             for b = 1:Nb
-                Pe(b) = sum((X((wlow(b)+1):(whigh(b)+1)) - X_hat((wlow(b)+1):(whigh(b)+1))).^2);
+                S((wlow(b)+1):(whigh(b)+1), i) = sign(X((wlow(b)+1):(whigh(b)+1))).*fix(abs(X((wlow(b)+1):(whigh(b)+1))).*2.^(-1/4 * a_hat(b)).^(3/4) + 0.4054);
+                X_hat = sign(S((wlow(b)+1):(whigh(b)+1), i)).*abs(S((wlow(b)+1):(whigh(b)+1), i)).^(4/3).*2.^(1/4*a_hat(b));              
+                Pe(b) = sum((X((wlow(b)+1):(whigh(b)+1)) - X_hat).^2);
             end
             if all(Pe >= T(:, i)), break; end
             a_hat_next = a_hat;

@@ -20,6 +20,6 @@ function x = iAACoder1(AACSeq1, fNameOut)
         x(((k-1)*1024 + 1):(k+1)*1024, :) = x(((k-1)*1024 + 1):(k+1)*1024, :) ...
             + iFilterbank(currFrameF, AACSeq1(k).frameType, AACSeq1(k).winType);
     end
-    x = x(1025:(N-1024), :);
+    x = x(2049:(N-1024), :);
     audiowrite(fNameOut, x, fs);
 end
