@@ -31,7 +31,7 @@ function AACSeq1 = AACoder1(fNameIn)
     trueN = size(y, 1);
     rightpad = 1024 - mod(trueN, 1024);
     N = trueN + rightpad;
-    y = [zeros(2048, 2); y; zeros(rightpad + 2048, 2)];
+    y = [zeros(1024, 2); y; zeros(rightpad + 2048, 2)];
 
     K = size(y, 1)/1024 - 1;
     prevFrameType = NUL;

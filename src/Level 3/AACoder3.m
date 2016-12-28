@@ -36,17 +36,14 @@ function AACSeq3 = AACoder3(fNameIn, fnameAACoded)
     trueN = size(y, 1);
     rightpad = 1024 - mod(trueN, 1024);
     N = trueN + rightpad;
-    y = [zeros(2048, 2); y; zeros(rightpad + 1024, 2)];
-    % K is the number of frames that correspond to original wav only
-    K = N/1024 - 1;    
+    y = [zeros(2048+1024, 2); y; zeros(rightpad + 1024, 2)];
+    K = size(y, 1)/1024 - 1;
     
     AACSeq2 = AACoder2(fNameIn);
     K2 = size(AACSeq2, 1);
-    
-    if K == K2, disp('popa'); end
-    
-    AACSeq3 = struct('frameType', num2cell(zeros(K,1)), ...
-                     'winType', num2cell(zeros(K,1)), ...
+        
+    AACSeq3 = struct('frameType', num2cell(zeros(K2,1)), ...
+                     'winType', num2cell(zeros(K2,1)), ...
                      'chl', struct('TNScoeffs', 0, 'T', 0, 'G', 0, 'sfc', 0, 'stream', 0, 'codebook', 0), ...
                      'chr', struct('TNScoeffs', 0, 'T', 0, 'G', 0, 'sfc', 0, 'stream', 0, 'codebook', 0));
 
@@ -58,8 +55,8 @@ function AACSeq3 = AACoder3(fNameIn, fnameAACoded)
     % by 'loadLUT.m' - see Annex A, pdf-page 81 in 'w2203tft.pdf'.
     huffLUT = loadLUT();
     scalefactorsCodebookNum = 12;
-    
-    for k = 1:K
+    h = waitbar(0, 'Encoding...');
+    for k = 1:K2
        frameType = AACSeq2(k).frameType;
        AACSeq3(k).frameType = frameType;
        AACSeq3(k).winType = AACSeq2(k).winType;
@@ -80,15 +77,16 @@ function AACSeq3 = AACoder3(fNameIn, fnameAACoded)
        
        % Quantize and huffman encode left channel frame frequencies.
        [S, sfc, AACSeq3(k).chl.G] = AACquantizer(AACSeq2(k).chl.frameF, frameType, SMR);
-       [AACSeq3(k).chl.stream, AACSeq3(k).chl.codebook] = encodeHuff(S, huffLUT);
+       [AACSeq3(k).chl.stream, AACSeq3(k).chl.codebook] = encodeHuff(S(:), huffLUT);
        [AACSeq3(k).chl.sfc, scalefactorsCodebookNum] = encodeHuff(sfc(:), huffLUT, scalefactorsCodebookNum);
        
        % Quantize and huffman encode right channel frame frequencies.
        [S, sfc, AACSeq3(k).chr.G] = AACquantizer(AACSeq2(k).chr.frameF, frameType, SMR);
-       [AACSeq3(k).chr.stream, AACSeq3(k).chr.codebook] = encodeHuff(S, huffLUT);
+       [AACSeq3(k).chr.stream, AACSeq3(k).chr.codebook] = encodeHuff(S(:), huffLUT);
        [AACSeq3(k).chr.sfc, scalefactorsCodebookNum] = encodeHuff(sfc(:), huffLUT, scalefactorsCodebookNum);
+       waitbar(k/K2);
     end
-    
-    save(fnameAACoded, AACSeq3);
+    close(h);
+    save(fnameAACoded, 'AACSeq3');
 end
 

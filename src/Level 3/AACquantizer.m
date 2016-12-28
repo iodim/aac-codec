@@ -40,6 +40,9 @@ function [S, sfc, G] = AACquantizer(frameF, frameType, SMR)
     end
     T = P ./ SMR;
     
+    T(isnan(T)) = 0;
+    T(T < 1e-10) = 0;
+    
     S = zeros(size(frameF));
     G = zeros(1, size(frameF, 2));
     sfc = zeros(Nb, size(frameF, 2));
@@ -51,6 +54,7 @@ function [S, sfc, G] = AACquantizer(frameF, frameType, SMR)
     for i = 1:size(frameF, 2)
         X = frameF(:, i);
         a_hat = repmat(16/3*log2(max(X).^(3/4)./MQ), Nb, 1);
+        a_hat(isinf(a_hat)) = -60;
         a_hat_next = a_hat;
         Pe = zeros(Nb, 1);
         while 1
@@ -65,7 +69,8 @@ function [S, sfc, G] = AACquantizer(frameF, frameType, SMR)
             if all(Pe >= T(:, i)), break; end
             a_hat_next = a_hat;
             a_hat_next(Pe < T(:, i)) = a_hat_next(Pe < T(:, i)) + 1;
-            if max(abs(a_hat_next - a_hat)) > 60, break; end
+            [A, B] = meshgrid(a_hat_next, a_hat);
+            if max(max(abs(A - B))) > 60, break; end
         end
         % Is this needed below? Last iteration will keep S intact.
         % S(:, i) = sign(X).*fix(abs(X).*2.^(-1/4 * a_hat).^(3/4) + 0.4054);

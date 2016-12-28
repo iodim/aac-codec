@@ -7,6 +7,10 @@ function x = iAACoder3(AACSeq3, fNameOut)
 %    - AACSeq3: Struct of Kx1 dimensions, where K is the number of encoded
 %    frames. See file AACoder3 for details about its elements.
 %    - fNameOut: Name of output .wav file
+    OLS = 1;
+    LSS = 2;
+    ESH = 3;
+    LPS = 4;
     
     K = size(AACSeq3, 1);
     AACSeq2 = struct('frameType', num2cell(zeros(K,1)), ...
@@ -17,6 +21,7 @@ function x = iAACoder3(AACSeq3, fNameOut)
     huffLUT = loadLUT();
     scalefactorsCodebookNum = 12;
     
+    h = waitbar(0, 'Decoding...');
     for k = 1:K
         frameType = AACSeq3(k).frameType;
         AACSeq2(k).frameType = frameType;
@@ -32,7 +37,7 @@ function x = iAACoder3(AACSeq3, fNameOut)
         sfc = sfc(1:sfclen);  % See CAUTION at 'decodeHuff.m', dims of sfc??
         S = decodeHuff(AACSeq3(k).chl.stream, AACSeq3(k).chl.codebook, huffLUT);
         S = S(1:1024);  % See CAUTION at 'decodeHuff.m'
-        AACSeq2(k).chl.frameF = iAACquantizer(S, sfc, AACSeq3(k).chl.G, frameType);
+        AACSeq2(k).chl.frameF = iAACquantizer(S(:), sfc(:), AACSeq3(k).chl.G, frameType);
 %         AACSeq2(k).chl.frameF = AACSeq2(k).chl.frameF(:);
         
         % Huffman-decode and inverse quantization in right channel
@@ -40,10 +45,11 @@ function x = iAACoder3(AACSeq3, fNameOut)
         sfc = sfc(1:sfclen);  % See CAUTION at 'decodeHuff.m', dims of sfc??
         S = decodeHuff(AACSeq3(k).chr.stream, AACSeq3(k).chr.codebook, huffLUT);
         S = S(1:1024);  % See CAUTION at 'decodeHuff.m'
-        AACSeq2(k).chr.frameF = iAACquantizer(S, sfc, AACSeq3(k).chr.G, frameType);
+        AACSeq2(k).chr.frameF = iAACquantizer(S(:), sfc(:), AACSeq3(k).chr.G, frameType);
 %         AACSeq2(k).chr.frameF = AACSeq2(k).chr.frameF;
+        waitbar(k/K);
     end
-    
+    close(h);
     x = iAACoder2(AACSeq2, fNameOut);
 end
 
