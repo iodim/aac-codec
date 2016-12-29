@@ -39,11 +39,10 @@ function frameF = iAACquantizer(S, sfc, G, frameType)
     for i = 1:subframes
         sfc(2:end, i) = sfc(2:end, i) + sfc(1:end-1, i);
         a = G(i) - sfc(:, i);
-%         frameF(:, i) = sign(S(:, i)).*abs(S(:, i)).^(4/3).*2.^(1/4*a);
         for b = 1:Nb
-            frameF((wlow(b)+1):(whigh(b)+1), i) = sign(S((wlow(b)+1):(whigh(b)+1), i)).*abs(S((wlow(b)+1):(whigh(b)+1), i)).^(4/3).*2.^(1/4*a(b));              
+            idx = (wlow(b)+1):(whigh(b)+1);
+            frameF(idx, i) = sign(S(idx, i)) .* (abs(S(idx, i)).^(4/3)) .* 2.^(1/4 * a(b));              
         end
-
     end
 end
 

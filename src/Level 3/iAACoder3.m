@@ -38,7 +38,6 @@ function x = iAACoder3(AACSeq3, fNameOut)
         S = decodeHuff(AACSeq3(k).chl.stream, AACSeq3(k).chl.codebook, huffLUT);
         S = S(1:1024);  % See CAUTION at 'decodeHuff.m'
         AACSeq2(k).chl.frameF = iAACquantizer(S(:), sfc(:), AACSeq3(k).chl.G, frameType);
-%         AACSeq2(k).chl.frameF = AACSeq2(k).chl.frameF(:);
         
         % Huffman-decode and inverse quantization in right channel
         sfc = decodeHuff(AACSeq3(k).chr.sfc, scalefactorsCodebookNum, huffLUT);
@@ -46,7 +45,7 @@ function x = iAACoder3(AACSeq3, fNameOut)
         S = decodeHuff(AACSeq3(k).chr.stream, AACSeq3(k).chr.codebook, huffLUT);
         S = S(1:1024);  % See CAUTION at 'decodeHuff.m'
         AACSeq2(k).chr.frameF = iAACquantizer(S(:), sfc(:), AACSeq3(k).chr.G, frameType);
-%         AACSeq2(k).chr.frameF = AACSeq2(k).chr.frameF;
+        
         waitbar(k/K);
     end
     close(h);

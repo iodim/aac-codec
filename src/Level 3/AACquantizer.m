@@ -41,39 +41,45 @@ function [S, sfc, G] = AACquantizer(frameF, frameType, SMR)
     T = P ./ SMR;
     
     T(isnan(T)) = 0;
-    T(T < 1e-10) = 0;
+    % T(T < 1e-10) = 0;
     
     S = zeros(size(frameF));
     G = zeros(1, size(frameF, 2));
     sfc = zeros(Nb, size(frameF, 2));
     
-    X_hat = zeros(size(frameF, 1), 1);
-    
-    % Quantizization
+    % Quantization
     MQ = 8191;
+    magic = 0.4054;
     for i = 1:size(frameF, 2)
         X = frameF(:, i);
-        a_hat = repmat(16/3*log2(max(X).^(3/4)./MQ), Nb, 1);
-        a_hat(isinf(a_hat)) = -60;
+        a_hat = repmat(16/3*log2(max(X)^(3/4)/MQ), Nb, 1);
+        a_hat(isinf(a_hat)) = 1;
         a_hat_next = a_hat;
         Pe = zeros(Nb, 1);
+        bands = 1:Nb;
         while 1
+            % end if discontinuity between scalefactors exceed 60
+            if max(a_hat_next(2:end) - a_hat_next(1:end-1)) > 60, break; end
+            
             a_hat = a_hat_next;
-%             S(:, i) = sign(X).*fix(abs(X).*2.^(-1/4 * a_hat).^(3/4) + 0.4054);
-%             X_hat = sign(S(:, i)).*abs(S(:, i)).^(4/3).*2.^(1/4*a_hat);
-            for b = 1:Nb
-                S((wlow(b)+1):(whigh(b)+1), i) = sign(X((wlow(b)+1):(whigh(b)+1))).*fix(abs(X((wlow(b)+1):(whigh(b)+1))).*2.^(-1/4 * a_hat(b)).^(3/4) + 0.4054);
-                X_hat = sign(S((wlow(b)+1):(whigh(b)+1), i)).*abs(S((wlow(b)+1):(whigh(b)+1), i)).^(4/3).*2.^(1/4*a_hat(b));              
-                Pe(b) = sum((X((wlow(b)+1):(whigh(b)+1)) - X_hat).^2);
+            % find energy of quantization loss
+            for b = bands
+                idx = (wlow(b)+1):(whigh(b)+1);
+                S(idx, i) = sign(X(idx)) .* fix((abs(X(idx)) .* 2.^(-1/4 * a_hat(b))).^(3/4) + magic);
+                X_hat = sign(S(idx, i)) .* (abs(S(idx, i)).^(4/3)) .* 2.^(1/4 * a_hat(b));              
+                Pe(b) = sum((X(idx) - X_hat).^2);
             end
-            if all(Pe >= T(:, i)), break; end
+            
+            bands = find(Pe < T(:, i));
+            % end if loss energy is over acoystic threshold for all bands
+            if size(bands, 1) == 0, break; end
+            
+            % increment by one band scalefactors that have yet to reach
+            % the acoustic threshold
             a_hat_next = a_hat;
-            a_hat_next(Pe < T(:, i)) = a_hat_next(Pe < T(:, i)) + 1;
-            [A, B] = meshgrid(a_hat_next, a_hat);
-            if max(max(abs(A - B))) > 60, break; end
+            a_hat_next(bands) = a_hat_next(bands) + 1;
         end
-        % Is this needed below? Last iteration will keep S intact.
-        % S(:, i) = sign(X).*fix(abs(X).*2.^(-1/4 * a_hat).^(3/4) + 0.4054);
+
         G(i) = max(a_hat);
         sfc(:, i) = G(i) - a_hat;
         sfc(2:end, i) = sfc(2:end, i) - sfc(1:end-1, i);
