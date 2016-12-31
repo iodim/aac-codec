@@ -36,12 +36,11 @@ function [S, sfc, G] = AACquantizer(frameF, frameType, SMR)
     Nb = size(wlow, 1);
     P = zeros(Nb, size(frameF, 2));
     for b = 1:Nb
-        P(b, :) = sum(frameF((wlow(b)+1):(whigh(b)+1), :).^2);
+        P(b, :) = sum(frameF((wlow(b)+1):(whigh(b)+1), :).^2, 1);
     end
     T = P ./ SMR;
     
     T(isnan(T)) = 0;
-    % T(T < 1e-10) = 0;
     
     S = zeros(size(frameF));
     G = zeros(1, size(frameF, 2));
@@ -52,7 +51,7 @@ function [S, sfc, G] = AACquantizer(frameF, frameType, SMR)
     magic = 0.4054;
     for i = 1:size(frameF, 2)
         X = frameF(:, i);
-        a_hat = repmat(16/3*log2(max(X)^(3/4)/MQ), Nb, 1);
+        a_hat = repmat(floor(16/3*log2(max(X)^(3/4)/MQ)), Nb, 1);
         a_hat(isinf(a_hat)) = 1;
         a_hat_next = a_hat;
         Pe = zeros(Nb, 1);
@@ -67,12 +66,13 @@ function [S, sfc, G] = AACquantizer(frameF, frameType, SMR)
                 idx = (wlow(b)+1):(whigh(b)+1);
                 S(idx, i) = sign(X(idx)) .* fix((abs(X(idx)) .* 2.^(-1/4 * a_hat(b))).^(3/4) + magic);
                 X_hat = sign(S(idx, i)) .* (abs(S(idx, i)).^(4/3)) .* 2.^(1/4 * a_hat(b));              
-                Pe(b) = sum((X(idx) - X_hat).^2);
+                Pe(b) = sum((X(idx) - X_hat).^2, 1);
             end
             
             bands = find(Pe < T(:, i));
+            bands = bands';
             % end if loss energy is over acoystic threshold for all bands
-            if size(bands, 1) == 0, break; end
+            if size(bands, 2) == 0, break; end
             
             % increment by one band scalefactors that have yet to reach
             % the acoustic threshold
@@ -82,7 +82,9 @@ function [S, sfc, G] = AACquantizer(frameF, frameType, SMR)
 
         G(i) = max(a_hat);
         sfc(:, i) = G(i) - a_hat;
-        sfc(2:end, i) = sfc(2:end, i) - sfc(1:end-1, i);
+        % G(i) = a_hat(1);
+        % sfc(:, i) = a_hat;
+        sfc(2:end, i) = sfc(2:end, i) - sfc(1:end-1, i); 
     end
     S = S(:);
 end

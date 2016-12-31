@@ -2,8 +2,8 @@ function [SNR, bitrate, compression] = demoAAC3(fNameIn, fNameOut, frameAACoded)
 %DEMOAAC3 Demonstrates Level 3 encoding/decoding
 %   Detailed explanation goes here
     [x, ~] = audioread(fNameIn);
-%     AACSeq3 = AACoder3(fNameIn, frameAACoded);
-    load('peos.mat')
+    AACSeq3 = AACoder3(fNameIn, frameAACoded);
+    % load('peos.mat')
     y = iAACoder3(AACSeq3, fNameOut);
     
     N = min(size(y, 1), size(x, 1));
