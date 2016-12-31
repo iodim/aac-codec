@@ -5,8 +5,8 @@ function SMR = psycho(frameT, frameType, frameTprev1, frameTprev2)
 %    - SMR: Signal to Mask Ratio, 42x8 matrix if frameType == ESH, else
 %    69x1 vector.
 %   Accepts the following arguments:
-%    - frameT: Current frame's temporal representation (1 channel). 2048x2
-%    matrix.
+%    - frameT: Current frame's temporal representation (1 channel). 256x8
+%    if frameType == ESH, else 2048x1
 %    - frameType: Same as before.
 %    - frameTprev1: Previous frame (1 channel).
 %    - frameTprev2: Twice previous frame (1 channel).

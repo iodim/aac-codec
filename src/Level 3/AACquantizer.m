@@ -52,13 +52,17 @@ function [S, sfc, G] = AACquantizer(frameF, frameType, SMR)
     for i = 1:size(frameF, 2)
         X = frameF(:, i);
         a_hat = repmat(floor(16/3*log2(max(X)^(3/4)/MQ)), Nb, 1);
-        a_hat(isinf(a_hat)) = 1;
+        a_hat(isinf(a_hat)) = 0;
         a_hat_next = a_hat;
         Pe = zeros(Nb, 1);
         bands = 1:Nb;
         while 1
-            % end if discontinuity between scalefactors exceed 60
-            if max(a_hat_next(2:end) - a_hat_next(1:end-1)) > 60, break; end
+            % End if discontinuity between scalefactors exceed 60.
+            % This step enforces that scalefactor representation can be
+            % huffman-encoded by its standard book.
+            if max(abs(a_hat_next(2:end) - a_hat_next(1:end-1))) > 60, break; end
+            % if abs(max(a_hat_next) - a_hat_next(1)) > 60, break; end
+            % if abs(fix(mean(a_hat_next, 1)) - a_hat_next(1)) > 60, break; end
             
             a_hat = a_hat_next;
             % find energy of quantization loss
@@ -79,13 +83,13 @@ function [S, sfc, G] = AACquantizer(frameF, frameType, SMR)
             a_hat_next = a_hat;
             a_hat_next(bands) = a_hat_next(bands) + 1;
         end
-
-        G(i) = max(a_hat);
-        sfc(:, i) = G(i) - a_hat;
-        % G(i) = a_hat(1);
-        % sfc(:, i) = a_hat;
-        sfc(2:end, i) = sfc(2:end, i) - sfc(1:end-1, i); 
+        sfc(:, i) = a_hat;
     end
+    % G = fix(mean(sfc, 1));
+    G = sfc(1, :);
+    % G = max(sfc, [], 1);
+    sfc = bsxfun(@minus, G, sfc);
+    sfc(2:end, :) = sfc(2:end, :) - sfc(1:end-1, :); 
     S = S(:);
 end
 
