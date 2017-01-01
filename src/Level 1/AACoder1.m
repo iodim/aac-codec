@@ -20,14 +20,7 @@ function AACSeq1 = AACoder1(fNameIn)
     
     defaultWinType = KBD;
 
-%     [y, fs] = audioread(fNameIn);
-%     y = [y; zeros(1024 - mod(size(y, 1), 1024), 2)];
-%     y = [zeros(1024, 2); y; zeros(1024, 2)];
-%     N = size(y, 1);
     [y, ~] = audioread(fNameIn);
-%     N = size(y, 1);
-%     N = N - mod(N, 2048);
-%     y = [zeros(1024, 2); y(1:N, :); zeros(1024, 2)];
     trueN = size(y, 1);
     rightpad = 1024 - mod(trueN, 1024);
     N = trueN + rightpad;
