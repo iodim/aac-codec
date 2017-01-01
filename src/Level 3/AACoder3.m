@@ -8,8 +8,8 @@ function AACSeq3 = AACoder3(fNameIn, fnameAACoded)
 %        - AACSeq3(i).winType
 %        - AACSeq3(i).chl.TNScoeffs
 %        - AACSeq3(i).chr.TNScoeffs
-%        - AACSeq3(i).chl.Τ
-%        - AACSeq3(i).chr.Τ
+%        - AACSeq3(i).chl.T
+%        - AACSeq3(i).chr.T
 %        - ACCSeq3(i).chl.G
 %        - ACCSeq3(i).chr.G
 %        - ACCSeq3(i).chl.sfc
@@ -28,7 +28,7 @@ function AACSeq3 = AACoder3(fNameIn, fnameAACoded)
     LPS = 4;
     KBD = 5;
     SIN = 6;
-    
+
     [y, ~] = audioread(fNameIn);
     % y should not be truncated but right padded with zeroes to be
     % congruent to 0 mod 2048. Left pad 2 1024-sized blocks, so that we can
@@ -38,7 +38,7 @@ function AACSeq3 = AACoder3(fNameIn, fnameAACoded)
     N = trueN + rightpad;
     y = [zeros(2048+1024, 2); y; zeros(rightpad + 1024, 2)];
     K = size(y, 1)/1024 - 1;
-    
+
     AACSeq2 = AACoder2(fNameIn);
     K2 = size(AACSeq2, 1);
         
@@ -62,24 +62,21 @@ function AACSeq3 = AACoder3(fNameIn, fnameAACoded)
        AACSeq3(k).winType = AACSeq2(k).winType;
        AACSeq3(k).chl.TNScoeffs = AACSeq2(k).chl.TNScoeffs;
        AACSeq3(k).chr.TNScoeffs = AACSeq2(k).chr.TNScoeffs;
-       
-%        if frameType == ESH, idx = reshape(1:1024, [128, 8]);
-%        else idx = 1:1024; end
-       
+
        % NOTE: how can we take chl/chr.T since it is calculated inside psycho.m?
-       
+
        % Calculate SMR for this frame using psychoacoustic model.
        % To be used in non homogenous quantization.
        frameT = y(((k+1)*1024 + 1):(k+3)*1024, :);
        frameTprev1 = y(((k)*1024 + 1):(k+2)*1024, :);
        frameTprev2 = y(((k-1)*1024 + 1):(k+1)*1024, :);
-       
+
        % Quantize and huffman encode left channel frame frequencies.
        SMR = psycho(frameT(:, 1), frameType, frameTprev1(:, 1), frameTprev2(:, 1));
        [S, sfc, AACSeq3(k).chl.G] = AACquantizer(AACSeq2(k).chl.frameF, frameType, SMR);
        [AACSeq3(k).chl.stream, AACSeq3(k).chl.codebook] = encodeHuff(S(:), huffLUT);
        [AACSeq3(k).chl.sfc, scalefactorsCodebookNum] = encodeHuff(sfc(:), huffLUT, scalefactorsCodebookNum);
-       
+
        % Quantize and huffman encode right channel frame frequencies.
        SMR = psycho(frameT(:, 2), frameType, frameTprev1(:, 2), frameTprev2(:, 2));
        [S, sfc, AACSeq3(k).chr.G] = AACquantizer(AACSeq2(k).chr.frameF, frameType, SMR);
