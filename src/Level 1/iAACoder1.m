@@ -22,9 +22,9 @@ function x = iAACoder1(AACSeq1, fNameOut)
     end
     x = x(1025:(N-1024), :);
 
-    % audiowrite issues a warning when writing from L3, so suppress
-    % warnings temporarily
-    warning('off','all');
+    % normalize signal in order to prevent clipping
+    x(abs(x(:, 1)) > 1, 1) = x(abs(x(:, 1)) >= 1, 1)./abs(x(abs(x(:, 1)) >= 1, 1));
+    x(abs(x(:, 2)) > 1, 2) = x(abs(x(:, 2)) >= 1, 2)./abs(x(abs(x(:, 2)) >= 1, 2));
+
     audiowrite(fNameOut, x, fs);
-    warning('on','all');
 end
