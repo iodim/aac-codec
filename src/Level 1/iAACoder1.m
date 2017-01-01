@@ -21,5 +21,10 @@ function x = iAACoder1(AACSeq1, fNameOut)
             + iFilterbank(currFrameF, AACSeq1(k).frameType, AACSeq1(k).winType);
     end
     x = x(1025:(N-1024), :);
+
+    % audiowrite issues a warning when writing from L3, so suppress
+    % warnings temporarily
+    warning('off','all');
     audiowrite(fNameOut, x, fs);
+    warning('on','all');
 end
