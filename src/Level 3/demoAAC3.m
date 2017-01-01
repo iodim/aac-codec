@@ -38,8 +38,8 @@ function [SNR, bitrate, compression] = demoAAC3(fNameIn, fNameOut, frameAACoded)
     disp(['Channel 2 SNR: ' num2str(SNR(2)) ' dB']);
     disp(['Uncompressed audio size: ' num2str(u_size/1024) ' MB'])
     disp(['Uncompressed audio bitrate: ' num2str(u_bitrate) ' KB/s'])
-    disp(['Uncompressed struct size: ' num2str(c_size) ' KB'])
-    disp(['Uncompressed struct bitrate: ' num2str(c_bitrate) ' KB/s'])
+    disp(['Compressed struct size: ' num2str(c_size) ' KB'])
+    disp(['Compressed struct bitrate: ' num2str(c_bitrate) ' KB/s'])
     disp(['Compression ratio: ' num2str(100/compression) ' % (x ' num2str(compression) ')'])
 end
 
