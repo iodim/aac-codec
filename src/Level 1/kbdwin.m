@@ -1,12 +1,12 @@
 function [WL, WR] = kbdwin(N, alpha)
-    tsum = 0;
+    psum = 0;
     WL = zeros(N/2, 1);
-    w = kaiser(N/2 + 1, pi^2*alpha);
+    w = kaiser(N/2 + 1, pi*alpha);
     for n = 1:(N/2)
-        tsum = tsum + w(n);
-        WL(n) = tsum;
+        psum = psum + w(n);
+        WL(n) = psum;
     end
-    WL = sqrt(WL./tsum);
+    WL = sqrt(WL./sum(w));
     WR = WL(end:-1:1);
     WL = WL(:);
     WR = WR(:);
