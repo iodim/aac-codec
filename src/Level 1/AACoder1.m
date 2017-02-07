@@ -18,7 +18,7 @@ function AACSeq1 = AACoder1(fNameIn)
     KBD = 5;
     SIN = 6;
     
-    defaultWinType = KBD;
+    defaultWinType = SIN;
 
     [y, ~] = audioread(fNameIn);
     trueN = size(y, 1);
