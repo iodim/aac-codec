@@ -1,1 +1,198 @@
 \section*{Επίπεδο 1}
+Το επίπεδο αυτό αρχικά χωρίζει το ηχητικό σήμα σε frames μήκους 2048 στοιχείων
+έκαστο, με 50\% overlap. Για να καλύψουμε τυχόν προβλήματα σε οριακές συνθήκες
+(στην αρχή και το τέλος του σήματος) κάνουμε pad με frames με μηδενικά, ένα
+στην αρχή και δύο στο τέλος. Επίσης, αν το σήμα δεν αποτελείται από ακέραιο
+πολλαπλάσιο του 1024, προσθέτουμε μηδενικά μέχρι να πετύχουμε τέλεια διαίρεση.
+Το επίπεδο αυτό υλοποιεί τη βαθμίδα του \emph{Sequence Segmentation Control
+(SSC)}, η οποία ουσιαστικά κατηγοριοποιεί το κάθε frame ανάλογα με το
+ενεργειακό του περιεχόμενο σε \verb|ONLY_LONG_SEQUENCE| (\verb|OLS|),
+\verb|LONG_START_SEQUENCE| (\verb|OLS|), \verb|EIGHT_SHORT_SEQUENCE|
+(\verb|OLS|) και \verb|LONG_STOP_SEQUENCE (LPS)| (\verb|OLS|). Επιπλέον,
+υλοποιείται και η βαθμίδα των \emph{Filterbanks} στην οποία περνάμε το κάθε
+frame ή subframe από ένα παράθυρο, είτε \emph{Kaiser Bessel Derived (KBD)} είτε
+\emph{Sinusoid (SIN)}, και έπειτα εξάγουμε τους συντελεστές του μετασχηματισμού
+\emph{Modified Discrete Cosine Transform (MDCT)} των δειγμάτων. Επιπλέον
+υλοποιούνται και οι αντίστροφες συναρτήσεις για κάθε στάδιο που θα
+χρησιμοποιηθούν κατά τη διαδικασία της αποκωδικοποιήσης. Να σημειωθεί ότι η
+κωδικοποιήση αυτού του επίπεδου είναι lossless καθώς δεν αποκόπτεται καμία
+πληροφορία, απλά μεταβαίνουμε από το χρόνο στη συχνότητα και το αντίστροφο.
+Δε θα εμβαθύνουμε ιδιαίτερα στη λειτουργία των μεθόδων αυτών, καθώς
+επεξηγούνται επαρκώς στην εκφώνηση. Το επίπεδο αυτό αποτελείται από τα
+ακόλουθα αρχεία:
+
+\subsection*{SSC.m}
+Υλοποιεί τη βαθμίδα \emph{Sequence Segmentation Control (SSC)} και έχει το
+ακόλουθο signature:
+\begin{center}
+	\verb|frameType = SSC(frameT, nextFrameT, prevFrameType)|
+\end{center}
+
+\noindent Επιστρέφει τις ακόλουθες μεταβλητές:
+\begin{description}
+\item[\Q{frameType:}] Ο τύπος του frame που επιλέγεται. Για \verb|OLS|
+	χρησιμοποιούμε την τιμή 1, για 	\verb|LSS| την τιμή 2, για \verb|ESH| την
+	τιμή 3 και για \verb|LPS| την τιμή 4.
+\end{description}
+
+\noindent Δέχεται τα ακόλουθα ορίσματα:
+\begin{description}
+\item[\Q{frameT:}] Το frame $i$ στο πεδίο του χρόνου. Περιέχει 2 κανάλια.
+	Πίνακας διαστάσεων $2048 \times 2$.
+\item[\Q{nextFrameT:}] Το επόμενο frame, $i + 1$. Χρησιμοποιείται για την
+	επιλογή παραθύρου. Πίνακας διαστάσεων $2048 \times 2$.
+\item[\Q{prevFrameType:}] Ο τύπος που έχει επιλεγεί για το frame $i - 1$. Να
+	σημειωθεί ότι μπορεί να πάρει και την τιμή 0, η οποία χρησιμοποιείται όταν
+	πρέπει να αποφασίσουμε την τιμή του πρώτου frame.
+\end{description}
+
+
+\subsection*{filterbank.m}
+Υλοποιεί τη βαθμίδα \emph{Filterbank} και έχει το ακόλουθο function signature:
+\begin{center}
+	\verb|frameF = filterbank(frameT, frameType, winType)|
+\end{center}
+
+\noindent Επιστρέφει τις ακόλουθες μεταβλητές:
+\begin{description}
+\item[\Q{frameF:}] Το frame στο πεδίο της συχνότητας, αναπαριστόμενο από τους
+	συντελεστές \emph{MDCT}. Πίνακας διαστάσεων $1024 \times 2$  που περιέχει
+	είτε τους συντελεστές των δύο καναλίων όταν έχουμε \verb|OLS|, \verb|LSS|
+	ή \verb|LPS|, είτε 8 υποπίνακες διαστάσεων $128 \times 2$, έναν για κάθε
+	subframe, όταν έχουμε \verb|ESH|, τοποθετημένους σε στήλες.
+\end{description}
+
+\noindent Δέχεται τα ακόλουθα ορίσματα:
+\begin{description}
+\item[\Q{frameT:}] Το frame $i$ στο πεδίο του χρόνου.Περιέχει 2 κανάλια.
+	Πίνακας διαστάσεων $2048 \times 2$.
+\item[\Q{frameType:}] Ο τύπος που έχει επιλεχθεί για το υπο κωδικοποίηση frame.
+\item[\Q{winType:}] Ο τύπος παραθύρου για το τρέχον frame. Μπορεί να είναι είτε
+	\emph{Kaiser Bessel Derived (KBD)} που συμβολίζεται με την τιμή 5, είτε
+	\emph{Sinusoid (SIN)} που συμβολίζεται με την τιμή 6.
+\end{description}
+
+
+\subsection*{iFilterbank.m}
+Υλοποιεί την βαθμίδα που αντιστρέφει την βαθμίδα \emph{Filterbank} και έχει το
+ακόλουθο function signature:
+\begin{center}
+	\verb|frameT = iFilterbank(frameF, frameType, winType)|
+\end{center}
+
+\noindent Τα ορίσματα και οι μεταβλητές εξόδου έχουν όπως και προηγουμένως.
+
+
+\subsection*{mdct4.m}
+Υπολογίζει το μετασχηματισμό \emph{Modified Discrete Cosine Transform (MDCT)}. Η
+υλοποίηση έχει γίνει από το Μάριο Αθηναίο
+\footnote{\label{f1}\url{http://www.ee.columbia.edu/~marios/mdct/mdct_giraffe.html}}.
+
+
+\subsection*{imdct4.m}
+Υπολογίζει τον αντίστροφο μετασχηματισμό \emph{Modified Discrete Cosine
+Transform (MDCT)}. Η υλοποίηση έχει γίνει από το Μάριο Αθηναίο\footref{f1}.
+
+
+\subsection*{kbdwin.m}
+Υπολογίζει τους συντελεστές ενός παραθύρου \emph{Kaiser Bessel Derived (KBD)}
+με το ακόλουθο signature:
+\begin{center}
+	\verb|[WL, WR] = kbdwin(N, alpha)|
+\end{center}
+
+\noindent Επιστρέφει τις ακόλουθες μεταβλητές:
+\begin{description}
+\item[\Q{WL:}] Οι συντελεστές του αριστερού κομματιού του παραθύρου, μήκους
+	$\frac{N}{2}$.
+\item[\Q{WR:}] Οι συντελεστές του δεξιού κομματιού του παραθύρου, μήκους
+	$\frac{N}{2}$.
+\end{description}
+
+\noindent Δέχεται τα ακόλουθα ορίσματα:
+\begin{description}
+\item[\Q{N:}] Το επιθυμητό μήκος του παραθύρου.
+\item[\Q{alpha:}] Παράμετρος που επηρεάζει τη μορφή του παραθύρου.
+\end{description}
+
+
+\subsection*{sinwin.m}
+Υπολογίζει τους συντελεστές ενός παραθύρου \emph{Sinusoid (SIN)} με το ακόλουθο
+signature:
+\begin{center}
+	\verb|[WL, WR] = sinwin(N)|
+\end{center}
+
+\noindent Τα ορίσματα και οι μεταβλητές εξόδου έχουν όπως και προηγουμένως.
+
+
+\subsection*{AACoder1.m}
+Υλοποιεί όλη τη κωδικοποιήση του πρώτου επιπέδου με το ακόλουθο signature:
+\begin{center}
+	\verb|AACSeq1 = AACoder1(fNameIn)|
+\end{center}
+
+\noindent Επιστρέφει τις ακόλουθες μεταβλητές:
+\begin{description}
+\item[\Q{AACSeq1:}] Δομή δίαστάσεων $K \times 1$, όπου $K$ το πλήθος των
+	κωδικοποιημένων frames. Κάθε στοιχείο της δομής αποτελείται από:
+	\begin{description}[leftmargin=0.2cm,rightmargin=0cm]
+		\item \Q{AACSeq1(i).frameType:} Όπως παραπάνω.
+		\item \Q{AACSeq1(i).winType:} Όπως παραπάνω.
+		\item \Q{AACSeq1(i).chl.frameF:} Οι συντελεστές \emph{(MDCT)} για το
+		αριστερό κανάλι διαστάσεων $128 \times 8$ για \verb|ESH| frames και
+		$1024 \times 1$ για	όλα τα άλλα.
+		\item \Q{AACSeq1(i).chr.frameF:} Οι συντελεστές \emph{(MDCT)} για το
+		δεξί κανάλι διαστάσεων $128 \times 8$ για \verb|ESH| frames και
+		$1024 \times 1$ για όλα τα άλλα.
+	\end{itemize}
+\end{description}
+
+\noindent Δέχεται τα ακόλουθα ορίσματα:
+\begin{description}
+\item[\Q{fNameIn:}] Το όνομα του αρχείου \verb|wav| με το σήμα προς
+	κωδικοποιήση. Υποθέτουμε δικάναλο ήχο και δειγματοληψία 48 kHz.
+\end{description}
+
+
+\subsection*{iAACoder1.m}
+Υλοποιεί όλη την απόκωδικοποιήση του πρώτου επιπέδου με το ακόλουθο signature:
+\begin{center}
+	\verb|x = iAACoder1(AACSeq1, fNameOut)|
+\end{center}
+
+\noindent Επιστρέφει τις ακόλουθες μεταβλητές:
+\begin{description}
+\item[\Q{AACSeq1:}] Όπως και παραπάνω.
+\item[\Q{fNameOut:}] Το όνομα του αρχείου \verb|wav| στο οποίο θα εγγραφεί το
+	σήμα ήχου μετά την αποκωδικοποιήση. Υποθέτουμε δικάναλο ήχο και
+	δειγματοληψία 48 kHz.
+\end{description}
+
+\noindent Δέχεται τα ακόλουθα ορίσματα:
+\begin{description}
+\item[\Q{fNameIn:}] Το όνομα του αρχείου \verb|wav| με το σήμα προς
+	κωδικοποιήση. Υποθέτουμε δικάναλο ήχο και δειγματοληψία 48 kHz.
+\end{description}
+
+
+\subsection*{demoAAC1.m}
+Επιδεικνύει τη διαδικασία κωδικοποιήσης/αποκωδικοποίησης του πρώτου επιπέδου
+εκτυπώνοντας χρήσιμες πληροφορίες με το ακόλουθο signature:
+\begin{center}
+	\verb|SNR = demoAAC1(fNameIn, fNameOut)|
+\end{center}
+
+\noindent Επιστρέφει τις ακόλουθες μεταβλητές:
+\begin{description}
+\item[\Q{SNR:}] Signal-to-Noise ratio μεταξύ του αποκωδικοποιημένου σήματος και
+	της διαφοράς του με το αρχικό σε dB.
+\end{description}
+
+\noindent Δέχεται τα ακόλουθα ορίσματα:
+\begin{description}
+\item[\Q{fNameIn:}] Όπως και παραπάνω.
+\item[\Q{fNameOut:}] Όπως και παραπάνω.
+\end{description}
+
+
