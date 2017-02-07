@@ -252,3 +252,12 @@
 \usepackage{breakcites}
 \urlstyle{same}
 \Urlmuskip=0mu plus 1mu\relax
+
+% For better lists
+% http://tex.stackexchange.com/questions/33334/description-list-with-right-alignment-of-labels
+\usepackage{enumitem}
+\SetLabelAlign{parright}{\parbox[t]{\labelwidth}{\raggedleft#1}}
+\setlist[description]{style=multiline,topsep=10pt,leftmargin=3.5cm,rightmargin=0.5cm,font=\normalfont,align=parright}
+
+% For verbatim labels in description labels
+\usepackage[Q=yes]{examplep}
