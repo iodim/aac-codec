@@ -1,1 +1,120 @@
 \section*{Επίπεδο 2}
+Σε αυτό το επίπεδο λαμβάνουμε το σήμα εκφρασμένο ως συντελεστές \emph{MDCT} από
+το πρώτο επίπεδο και εκτελούμε τη διαδικασία του \emph{Temporal Noise Shaping
+(TNS)} ώστε να μειώσουμε το σφάλμα κβαντισμού σε μετέπειτα στάδιο. Να σημειωθεί
+ότι η απώλεια πληροφόριας σε αυτό το στάδιο είναι πρακτικά μηδενική, συνεπώς
+και σε αυτό το επίπεδο έχουμε lossless κωδικοποιήση. Το επίπεδο αυτό
+αποτελείται από τα ακόλουθα αρχεία:
+
+
+\subsection*{TNS.m}
+Υλοποιεί τη βαθμίδα \emph{Temporal Noise Shaping (TNS)} για ένα κανάλι και έχει
+το ακόλουθο signature:
+\begin{center}
+	\verb|[frameFout, TNScoeffs] = TNS(frameFin, frameType)|
+\end{center}
+
+\noindent Επιστρέφει τις ακόλουθες μεταβλητές:
+\begin{description}
+\item[\Q{frameFout:}] Οι συντελεστές \emph{MDCT} μετά τη διαδικασία του
+	\emph{Temporal Noise Shaping}. Πίνακας διαστάσεων $128 \times 8$ αν το
+	frame είναι \verb|ESH|, ειδάλως διάνυσμα $1024 \times 1$.
+\item[\Q{TNScoeffs:}] Οι κβαντισμένοι συντελεστές \emph{TNS} σε μορφή πίνακα
+	διαστάσεων $4 \times 8$ για \verb|ESH| frame, $4 \times 1$ αλλιώς.
+\end{description}
+
+\noindent Δέχεται τα ακόλουθα ορίσματα:
+\begin{description}
+\item[\Q{frameFin:}] Οι συντελεστές \emph{MDCT} πριν τη διαδικασία του
+	\emph{Temporal Noise Shaping}. Πίνακας διαστάσεων $128 \times 8$ αν το
+	frame είναι \verb|ESH|, ειδάλως διάνυσμα $1024 \times 1$.
+\item[\Q{frameType:}] Ο τύπος του frame, όπως και παραπάνω.
+\end{description}
+
+
+\subsection*{iTNS.m}
+Αντιστρέφει τη βαθμίδα \emph{Temporal Noise Shaping (TNS)} για ένα κανάλι και
+έχει το ακόλουθο signature:
+\begin{center}
+	\verb|frameFout = iTNS(frameFin, frameType, TNScoeffs)|
+\end{center}
+
+\noindent Τα ορίσματα και οι μεταβλητές εξόδου έχουν όπως και προηγουμένως.
+
+
+\subsection*{AACoder2.m}
+Υλοποιεί όλη τη κωδικοποιήση του δεύτερου επιπέδου με το ακόλουθο signature:
+\begin{center}
+	\verb|AACSeq2 = AACoder2(fNameIn)|
+\end{center}
+
+\noindent Επιστρέφει τις ακόλουθες μεταβλητές:
+\begin{description}
+\item[\Q{AACSeq2:}] Δομή δίαστάσεων $K \times 1$, όπου $K$ το πλήθος των
+	κωδικοποιημένων frames. Κάθε στοιχείο της δομής αποτελείται από:
+	\begin{description}[leftmargin=0.2cm,rightmargin=0cm]
+		\item \Q{AACSeq2(i).frameType:} Όπως παραπάνω.
+		\item \Q{AACSeq2(i).winType:} Όπως παραπάνω.
+		\item \Q{AACSeq2(i).chl.frameF:} Οι συντελεστές \emph{(MDCT)} μετά τη
+			διαδικασία \emph{TNS} για το αριστερό κανάλι διαστάσεων
+			$128 \times 8$ για \verb|ESH| frames και $1024 \times 1$ για όλα τα
+			άλλα.
+		\item \Q{AACSeq2(i).chr.frameF:} Οι συντελεστές \emph{(MDCT)} μετά τη
+			διαδικασία \emph{TNS} για το δεξί κανάλι διαστάσεων $128 \times 8$
+			για	\verb|ESH| frames και $1024 \times 1$ για όλα τα άλλα.
+		\item \Q{AACSeq2(i).chl.TNScoeffs:} Οι κβαντισμένοι συντελεστές
+			\emph{TNS} για το αριστερό κανάλι. Πίνακας διαστάσεων $4 \times 8$
+			για \verb|ESH| frame, $4 \times 1$ αλλιώς.
+		\item \Q{AACSeq2(i).chr.TNScoeffs:} Οι κβαντισμένοι συντελεστές
+			\emph{TNS} για το δεξί κανάλι. Πίνακας διαστάσεων $4 \times 8$
+			για \verb|ESH| frame, $4 \times 1$ αλλιώς.
+		\end{description}
+\end{description}
+
+\noindent Δέχεται τα ακόλουθα ορίσματα:
+\begin{description}
+\item[\Q{fNameIn:}] Το όνομα του αρχείου \verb|wav| με το σήμα προς
+	κωδικοποιήση. Υποθέτουμε δικάναλο ήχο και δειγματοληψία 48 kHz.
+\end{description}
+
+
+\subsection*{iAACoder2.m}
+Υλοποιεί όλη την απόκωδικοποιήση του δεύτερου επιπέδου με το ακόλουθο
+signature:
+\begin{center}
+	\verb|x = iAACoder2(AACSeq2, fNameOut)|
+\end{center}
+
+\noindent Επιστρέφει τις ακόλουθες μεταβλητές:
+\begin{description}
+\item[\Q{AACSeq2:}] Όπως και παραπάνω.
+\item[\Q{fNameOut:}] Το όνομα του αρχείου \verb|wav| στο οποίο θα εγγραφεί το
+	σήμα ήχου μετά την αποκωδικοποιήση. Υποθέτουμε δικάναλο ήχο και
+	δειγματοληψία 48 kHz.
+\end{description}
+
+\noindent Δέχεται τα ακόλουθα ορίσματα:
+\begin{description}
+\item[\Q{fNameIn:}] Το όνομα του αρχείου \verb|wav| με το σήμα προς
+	κωδικοποιήση. Υποθέτουμε δικάναλο ήχο και δειγματοληψία 48 kHz.
+\end{description}
+
+
+\subsection*{demoAAC2.m}
+Επιδεικνύει τη διαδικασία κωδικοποιήσης/αποκωδικοποίησης του δεύτερου επιπέδου
+εκτυπώνοντας χρήσιμες πληροφορίες με το ακόλουθο signature:
+\begin{center}
+	\verb|SNR = demoAAC2(fNameIn, fNameOut)|
+\end{center}
+
+\noindent Επιστρέφει τις ακόλουθες μεταβλητές:
+\begin{description}
+\item[\Q{SNR:}] Signal-to-Noise ratio μεταξύ του αποκωδικοποιημένου σήματος και
+	της διαφοράς του με το αρχικό σε dB.
+\end{description}
+
+\noindent Δέχεται τα ακόλουθα ορίσματα:
+\begin{description}
+\item[\Q{fNameIn:}] Όπως και παραπάνω.
+\item[\Q{fNameOut:}] Όπως και παραπάνω.
+\end{description}
