@@ -45,5 +45,7 @@ function AACSeq1 = AACoder1(fNameIn)
         AACSeq1(k).chl.frameF = currframeF(:, 1);
         AACSeq1(k).chr.frameF = currframeF(:, 2);
     end
+    
+    save('L1.mat', 'AACSeq1');
 end
 

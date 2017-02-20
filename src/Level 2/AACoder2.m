@@ -36,5 +36,7 @@ function AACSeq2 = AACoder2(fNameIn)
        [AACSeq2(k).chr.frameF, AACSeq2(k).chr.TNScoeffs] = ...
            TNS(AACSeq1(k).chr.frameF(idx), AACSeq1(k).frameType);
     end
+    
+    save('L2.mat', 'AACSeq2');
 end
 
