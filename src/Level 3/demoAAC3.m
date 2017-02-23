@@ -7,7 +7,7 @@ function [SNR, bitrate, compression] = demoAAC3(fNameIn, fNameOut, frameAACoded)
 
     tic;
     AACSeq3 = AACoder3(fNameIn, frameAACoded);
-    disp(['Coding time: ' num2str(toc) ' seconds']);
+    disp(['Encoding time: ' num2str(toc) ' seconds']);
 
 %     load('L3.mat')
 

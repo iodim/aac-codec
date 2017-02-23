@@ -7,7 +7,7 @@ function SNR = demoAAC1(fNameIn, fNameOut)
 
     tic;
     AACSeq1 = AACoder1(fNameIn);
-    disp(['Coding time: ' num2str(toc) ' seconds']);
+    disp(['Encoding time: ' num2str(toc) ' seconds']);
 
     tic;
     y = iAACoder1(AACSeq1, fNameOut);
